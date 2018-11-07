@@ -1,0 +1,10 @@
+{
+    "bingOptions": {
+        "BING_SUBSCRIPTION_KEY" : "1234567890ABCDEFG1234567890ABCDEFG",
+        "BING_RECOGNITION_MODE" : "dictation",
+        "BING_LANGUAGE" : "en-US",
+        "BING_RESULT_FORMAT" : "detailed",
+        "CUSTOM_SPEECH_ENDPOINT" : "wss://eastasia.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?cid=11111111-2222-3333-4444-5555555555",
+        "BING_TOKEN_URL" : "https://eastasia.api.cognitive.microsoft.com/sts/v1.0/issuetoken"
+    }
+}
