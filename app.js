@@ -4,7 +4,7 @@
 "use strict";
 const process = require('process');
 const bingSpeechService = require('ms-bing-speech-service');
-const Mic = require('node-microphone');
+const Mic = require('mic');
 const debug = require('debug')('app');
 function createLog (ns) {
     const subDebug = debug.extend(ns);
@@ -39,14 +39,30 @@ const debugMic = createLog('mic');
 const config = require('./config.json');
 
 // Create microphone stream
-let mic = new Mic();
-let stream = mic.startRecording();
+let mic = Mic({
+    // endian: 'big', // OR 'little'
+    // bitwidth: '16', // OR 8 OR 24 OR anything valid supported by arecord OR sox
+    // encoding: 'signed-integer', // OR 'unsigned-integer'
+    // rate: '16000', // 8000 OR 16000 OR 44100 OR anything valid supported by arecord OR sox
+    // channels: '1', // 1 OR 2 OR anything valid supported by arecord OR sox
+    // fileType: 'raw', // wave on linux?
+    // debug: true, // To get the full debug stuff
+    // exitOnSilence: 6 // The 'silence' signal is raised after reaching these many consecutive frames
+});
+// mic.pause() - pauses the microphone
+// mic.resume() - resumes the microphone
+// mic.stop() - stops the stream
 
-// Log microphone info
-mic.on('info', data => debugMic.logEvent(data.toString()))
+let stream = mic.getAudioStream();
+stream.on('data', data => debugMic.log('received %d bytes', data.length));
 debugMic
-    // Throw microphone errors when I mess something up
-    .event(mic, 'error');
+    .event(stream, 'error')
+    .event(stream, 'startComplete')
+    .event(stream, 'stopComplete')
+    .event(stream, 'pauseComplete')
+    .event(stream, 'resumeComplete')
+    .event(stream, 'silence')
+    .event(stream, 'processExitComplete')
 
 // Create recognizer
 const recognizer = new bingSpeechService(config.bingOptions);
@@ -68,6 +84,9 @@ recognizer.start().then(() => {
 
     // The microphone stream will be sent to the MS recognizer
     recognizer.sendStream(stream)
+
+    // Starting the mic after the init.
+    mic.start();
     
 }).catch((error) => {
     debugMS.error('Error while trying to start the recognizer. %O', error);
