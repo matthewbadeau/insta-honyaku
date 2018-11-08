@@ -6,7 +6,7 @@ const process = require('process');
 const bingSpeechService = require('ms-bing-speech-service');
 const Mic = require('node-microphone');
 
-const config = require('./config.json');
+const config = require('./config.js');
 
 // Create microphone stream
 let mic = new Mic();

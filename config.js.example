@@ -1,0 +1,26 @@
+// Region for the service (to be selected in the azure backend)
+const REGION = 'eastasia'
+
+// One of the two subscription keys for the azure service.
+// https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/get-started
+const SUBSCRIPTION_KEY= "1234567890ABCDEFG1234567890ABCDEFG"
+
+// Needs to be connected through
+// https://eastasia.cris.ai/Home/CustomSpeech
+//
+// 1. Connect Subscription Key to Service
+// 2. Create Endpoint
+// 2a. Wait until endpoint is "Succeeded"
+//     ID available under Endpoint Information
+const SUBSCRIPTION_ID = '11111111-2222-3333-4444-5555555555'
+
+module.exports = {
+    bingOptions: {
+        subscriptionKey: SUBSCRIPTION_KEY,
+        mode: "dictation",
+        language: "en-US",
+        format: "detailed",
+        serviceUrl: `wss://${REGION}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?cid=${SUBSCRIPTION_ID}`,
+        issueTokenUrl: `https://${REGION}.api.cognitive.microsoft.com/sts/v1.0/issuetoken`,
+    }
+}
