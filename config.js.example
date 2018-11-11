@@ -5,6 +5,11 @@ const REGION = 'eastasia'
 // https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/get-started
 const SUBSCRIPTION_KEY= "1234567890ABCDEFG1234567890ABCDEFG"
 
+// Need another subscription key for the text translation service
+// Create a new project in the Azure portal
+// Use the 'Text Translate' resource
+const TRA_SUBSCRIPTION_KEY= "1234567890ABCDEFG1234567890ABCDEFG"
+
 // Needs to be connected through
 // https://eastasia.cris.ai/Home/CustomSpeech
 //
@@ -22,5 +27,10 @@ module.exports = {
         format: "detailed",
         serviceUrl: `wss://${REGION}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?cid=${SUBSCRIPTION_ID}`,
         issueTokenUrl: `https://${REGION}.api.cognitive.microsoft.com/sts/v1.0/issuetoken`,
+    },
+    translatorOptions: {
+        subscriptionKey: SUBSCRIPTION_KEY,
+        toLanguage: "ja",
+        fromLanguage: "en"
     }
 }
