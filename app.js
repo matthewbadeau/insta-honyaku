@@ -2,6 +2,7 @@
 // source: https://github.com/ricardoatsouza/ms-bing-speech-streaming-example
 // Modified by Matthew
 "use strict";
+const fs = require('fs');
 const process = require('process');
 const request = require('request');
 const uuidv4 = require('uuid/v4');
@@ -9,6 +10,8 @@ const bingSpeechService = require('ms-bing-speech-service');
 const Mic = require('node-microphone');
 const Speaker = require('speaker');
 const debug = require('debug')('app');
+
+const now = (new Date(Date.now())).toISOString().replace(/[:-]/gi, '');
 
 function createLog (ns) {
     const subDebug = debug.extend(ns);
@@ -71,13 +74,19 @@ const speaker = new Speaker({
 
 // Create microphone stream
 let mic = new Mic();
-let stream = mic.startRecording();
+let micStream = mic.startRecording();
+
+// Make wav file stream
+let wavFile = fs.createWriteStream('./wav/speech_' + now + '.wav');
 
 // Log microphone info
 mic.on('info', data => debugMic.logEvent(data.toString()))
 debugMic
     // Throw microphone errors when I mess something up
     .event(mic, 'error');
+
+// Make txt file stream
+let txtFile = fs.createWriteStream('./txt/speech_' + now + '.txt');
 
 // Create recognizer
 const recognizer = new bingSpeechService(config.bingOptions);
@@ -92,12 +101,15 @@ const handleRecognition = (event) => {
       options['body'] = [{
         'text': event.DisplayText
       }];
+      txtFile.write(event.DisplayText + '\r');
       request(options)
           .on('response', function(response){
             debugTR.log('Response %s', response.statusCode);
           })
           .on('data', (body) => {
-            debugTR.log('Data: %o', JSON.parse(body));
+            let data = (JSON.parse(body))[0];
+            txtFile.write(data['translations'][0]['text'] + '\r');
+            debugTR.log('Data: %o', data);
           })
           .on('error', function(err){
             debugTR.log('Error: %s', err);
@@ -115,8 +127,10 @@ recognizer.start().then(() => {
         .event(recognizer, 'error')
         .event(recognizer, 'close');
 
+    // microphone stream written to .wav file
+    micStream.pipe(wavFile);
     // The microphone stream will be sent to the MS recognizer
-    recognizer.sendStream(stream)
+    recognizer.sendStream(micStream);
 
 }).catch((error) => {
     debugMS.error('Error while trying to start the recognizer. %O', error);
