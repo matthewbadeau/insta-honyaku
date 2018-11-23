@@ -101,21 +101,21 @@ const handleRecognition = (event) => {
       options['body'] = [{
         'text': event.DisplayText
       }];
-      txtFile.write(event.DisplayText + '\r');
+      txtFile.write(Date.now() + ':' + event.DisplayText + '\r');
       request(options)
           .on('response', function(response){
-            debugTR.log('Response %s', response.statusCode);
+            // debugTR.log('Response %s', response.statusCode);
           })
           .on('data', (body) => {
             let data = (JSON.parse(body))[0];
-            txtFile.write(data['translations'][0]['text'] + '\r');
-            debugTR.log('Data: %o', data);
+            txtFile.write(Date.now() + ':' + data['translations'][0]['text'] + '\r');
+            debugTR.log(data.translations.map(translation => translation.text).join('; '));
           })
           .on('error', function(err){
-            debugTR.log('Error: %s', err);
+            // debugTR.log('Error: %s', err);
           });
+      debugMS.log(event.DisplayText);
     }
-    debugMS.log('%s: %o', status, event);
 };
 
 // Initialize the recognizer
